@@ -10,9 +10,8 @@
 
 
 ### Examples
-- https://patience.toys/
-- https://rauchg.com/about
 - https://leerob.com/
+- https://patience.toys/
 
 
 ### Fonts

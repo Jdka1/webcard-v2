@@ -3,73 +3,38 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="Aryan Mehra: Forward Deployed AI Engineer at Palantir and Stanford Computer Engineering student."
-    />
+    <meta name="description" content="Aryan Mehra: Forward Deployed AI Engineer at Palantir and Stanford Computer Engineering student." />
     <title>Aryan Mehra</title>
+    <link rel="icon" href="/public/favicon.jpeg" type="image/jpeg" />
+    <link rel="apple-touch-icon" href="/public/favicon.jpeg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Saira+Stencil+One&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:wght@400;500&amp;display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/src/styles.css" />
   </head>
   <body>
     <main class="hero" aria-labelledby="site-title">
-      <img
-        class="hero-photo"
-        src="/public/photography/4V7A3683.jpg"
-        alt="A quiet snowfield and distant mountain peaks beneath a pale sky."
-      />
+      <img class="hero-photo" src="/public/photography/4V7A5833-Enhanced-NR-Edit.jpg" alt="Fog rolling through a forested mountain ridge." />
+      <button class="photo-toggle" type="button" aria-label="Show next background photo">
+        Photo 1 / 13
+      </button>
 
       <section class="intro" aria-label="Introduction">
-        <h1 id="site-title">Aryan Mehra</h1>
-        <p class="bio">
-          Forward Deployed AI Engineer at Palantir. Computer Engineering at
-          Stanford.
-        </p>
-        <nav class="links" aria-label="Personal links">
-          <a
-            href="https://x.com/aryansfv"
-            target="_blank"
-            rel="noreferrer"
-            aria-label="X"
-            title="X"
-          >
-            <img src="/public/icons/x.svg" alt="" aria-hidden="true" />
-          </a>
-          <a
-            href="https://github.com/Jdka1"
-            target="_blank"
-            rel="noreferrer"
-            aria-label="GitHub"
-            title="GitHub"
-          >
-            <img src="/public/icons/github.svg" alt="" aria-hidden="true" />
-          </a>
-          <a
-            href="https://www.linkedin.com/in/aryan-mehra/"
-            target="_blank"
-            rel="noreferrer"
-            aria-label="LinkedIn"
-            title="LinkedIn"
-          >
-            <img src="/public/icons/linkedin.svg" alt="" aria-hidden="true" />
-          </a>
-          <a
-            href="https://www.youtube.com/@arymehr"
-            target="_blank"
-            rel="noreferrer"
-            aria-label="YouTube"
-            title="YouTube"
-          >
-            <img src="/public/icons/youtube.svg" alt="" aria-hidden="true" />
-          </a>
-        </nav>
+        <div class="intro-heading">
+          <h1 id="site-title">Aryan Mehra</h1>
+          <nav class="links" aria-label="Personal links">
+            <a href="https://x.com/aryansfv" target="_blank" rel="noreferrer">X</a>
+          <a href="https://github.com/Jdka1" target="_blank" rel="noreferrer">GitHub</a>
+          <a href="https://www.linkedin.com/in/aryan-mehra/" target="_blank" rel="noreferrer">LinkedIn</a>
+          <a href="https://www.youtube.com/@arymehr" target="_blank" rel="noreferrer">YouTube</a>
+          </nav>
+        </div>
+        <div class="bio">
+          <p>Forward Deployed AI Engineer at Palantir. Computer Engineering at Stanford.</p>
+        </div>
       </section>
     </main>
+    <script src="/src/photo-rotator.js" type="module"></script>
     <script src="/src/glass.js" type="module"></script>
   </body>
 </html>

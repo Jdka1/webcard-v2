@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="{{lang}}">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="{{description}}" />
+    <title>{{title}}</title>
+    {{fontLinks}}
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <main class="hero" aria-labelledby="site-title">
+      <img class="hero-photo" src="{{heroImage}}" alt="{{heroAlt}}" />
+      <button class="photo-toggle" type="button" aria-label="Show next background photo">
+        Photo 1 / 13
+      </button>
+
+      <section class="intro" aria-label="{{aboutAriaLabel}}">
+        <div class="intro-heading">
+          <h1 id="site-title">{{name}}</h1>
+          <nav class="links" aria-label="Personal links">
+            {{socialLinks}}
+          </nav>
+        </div>
+        <div class="bio">
+          {{bioHtml}}
+        </div>
+      </section>
+    </main>
+    <script src="/src/photo-rotator.js" type="module"></script>
+    <script src="/src/glass.js" type="module"></script>
+  </body>
+</html>

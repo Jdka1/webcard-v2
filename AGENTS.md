@@ -8,38 +8,49 @@ Always keep this file up to date when changing the site structure, build command
 
 ## Current Site
 
-- The site is intentionally a single static page.
-- Entry point: `index.html`.
+- The site is intentionally a single static page, generated from small content/template files.
+- Generated entry point: `index.html`.
+- Do not hand-edit `index.html` unless the user explicitly asks. Edit source files, then run `npm run build`.
+- Editable bio/name copy: `content/bio.md`.
+- Page metadata, font, and hero image: `content/site.json`.
+- Social links and ordering: `content/social-links.json`.
+- HTML shell/template: `templates/index.html`.
+- Build script: `scripts/build.js`.
 - Stylesheet: `src/styles.css`.
-- No framework or bundler is currently used.
-- Local server command: `npm start` or `npm run serve`.
+- Glass-card pointer interaction: `src/glass.js`.
+- Background photo rotation: `src/photo-rotator.js`.
+- No framework or bundler is currently used. The build is a dependency-free Node script.
+- Build command: `npm run build`.
+- Local server command: `npm start` or `npm run serve`; both build first.
 - The local server uses `python3 -m http.server 5174`.
 
 ## Design Direction
 
 - Minimal, photo-led personal homepage.
 - Full-screen background photo: `public/photography/4V7A3683.jpg`.
-- Content should be centered, not left-aligned.
-- The name `Aryan Mehra` should stay on one line.
-- Typography uses Google Font `Saira Stencil One` with heavy sans-serif fallbacks.
+- Content card should remain centered in the viewport.
+- Current card text is left-aligned.
+- Typography uses Google Font `STIX Two Text` with Georgia/serif fallbacks.
 - Keep the page restrained and avoid distracting motion or visual effects.
-- Social links should be icon-only, borderless buttons.
+- Social links are currently text links with subtle underlines.
+- The glass-card effect uses CSS custom properties that are updated by `src/glass.js`.
+- The glass effect intentionally combines real `backdrop-filter` with a duplicated fixed background layer inside the card to fake refraction; keep it subtle enough that the bio remains readable.
 
 ## Social Links
 
-Social links are shown in this exact order:
+Social links are maintained in `content/social-links.json` and shown in this exact order:
 
 1. X: `https://x.com/aryansfv`
 2. GitHub: `https://github.com/Jdka1`
 3. LinkedIn: `https://www.linkedin.com/in/aryan-mehra/`
 4. YouTube: `https://www.youtube.com/@arymehr`
 
-Icons are local SVG assets in `public/icons/`.
+Local SVG icon assets still exist in `public/icons/`, but the current template does not render them.
 
 ## Assets
 
 - Primary background image: `public/photography/4V7A3683.jpg`.
-- Social icons:
+- Available social icons:
   - `public/icons/x.svg`
   - `public/icons/github.svg`
   - `public/icons/linkedin.svg`
@@ -48,11 +59,12 @@ Icons are local SVG assets in `public/icons/`.
 
 ## Verification
 
-When changing layout or typography, verify desktop and mobile renderings. The narrow mobile case matters because the title is intentionally kept on one line.
+When changing layout or typography, verify desktop and mobile renderings. The narrow mobile case matters because the glass card should stay readable and comfortably framed.
 
 Useful checks:
 
 ```sh
+npm run build
 npm start
 ```
 

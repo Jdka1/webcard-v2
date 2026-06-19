@@ -1,0 +1,16 @@
+{
+  "lang": "en",
+  "title": "Aryan Mehra",
+  "description": "Aryan Mehra: Forward Deployed AI Engineer at Palantir and Stanford Computer Engineering student.",
+  "font": {
+    "preconnect": [
+      "https://fonts.googleapis.com",
+      "https://fonts.gstatic.com"
+    ],
+    "stylesheet": "https://fonts.googleapis.com/css2?family=STIX+Two+Text:wght@400;500&display=swap"
+  },
+  "hero": {
+    "image": "/public/photography/4V7A5833-Enhanced-NR-Edit.jpg",
+    "alt": "Fog rolling through a forested mountain ridge."
+  }
+}

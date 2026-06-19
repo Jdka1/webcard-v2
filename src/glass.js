@@ -1,15 +1,37 @@
 const glassCard = document.querySelector(".intro");
+const heroPhoto = document.querySelector(".hero-photo");
 
 if (glassCard) {
+  const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
+  const setGlassBackground = () => {
+    if (!heroPhoto) return;
+
+    const imageUrl = heroPhoto.currentSrc || heroPhoto.src;
+    glassCard.style.setProperty("--glass-bg", `url("${imageUrl}")`);
+  };
+
   const setGlassPosition = (x, y) => {
+    const dx = (x - 50) * 0.42;
+    const dy = (y - 50) * 0.42;
+    const angle = 135 + dx * 0.9;
+
     glassCard.style.setProperty("--glass-x", `${x}%`);
     glassCard.style.setProperty("--glass-y", `${y}%`);
+    glassCard.style.setProperty("--glass-dx", `${dx}px`);
+    glassCard.style.setProperty("--glass-dy", `${dy}px`);
+    glassCard.style.setProperty("--glass-angle", `${angle}deg`);
+    glassCard.style.setProperty("--glass-shift-x", `${dx * -0.22}px`);
+    glassCard.style.setProperty("--glass-shift-y", `${dy * -0.22}px`);
   };
+
+  setGlassBackground();
+  heroPhoto?.addEventListener("load", setGlassBackground);
 
   glassCard.addEventListener("pointermove", (event) => {
     const rect = glassCard.getBoundingClientRect();
-    const x = ((event.clientX - rect.left) / rect.width) * 100;
-    const y = ((event.clientY - rect.top) / rect.height) * 100;
+    const x = clamp(((event.clientX - rect.left) / rect.width) * 100, 0, 100);
+    const y = clamp(((event.clientY - rect.top) / rect.height) * 100, 0, 100);
 
     setGlassPosition(x, y);
   });
