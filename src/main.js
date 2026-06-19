@@ -268,10 +268,8 @@ function tick(time) {
 }
 
 function toggleEntered() {
-  if (hasEntered) return;
-
-  hasEntered = true;
-  setCardScale(enteredZoom);
+  hasEntered = !hasEntered;
+  setCardScale(hasEntered ? enteredZoom : 1);
 }
 
 window.addEventListener("resize", setCanvasExtents);

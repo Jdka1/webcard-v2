@@ -17,6 +17,8 @@ This repo is a minimal static personal website for Aryan Mehra. It is intentiona
 - `/photography/` - standalone masonry photography gallery.
 
 Only photography assets should live in `public/photography/`. Non-photography images were deliberately removed.
+Homepage audio lives in `public/audio/`.
+`src/audio.js` is loaded on all pages and plays the click sound for links, buttons, and role-button elements. It routes the sound through a Web Audio gain node at `3x` volume.
 
 ## Homepage UX
 
@@ -28,14 +30,15 @@ Initial state:
   - `FDAI @ Palantir · Stanford Computer Engineering`
 - Links are hidden.
 
-First click on the centered name/card:
-- One-way interaction. There is no second-click reset.
+Click on the centered name/card:
+- Toggles the foreground card between collapsed and enlarged states.
+- Plays `public/audio/mc-click-sound.mov` through the shared site-wide audio handler.
 - Links reveal immediately:
   - About
   - Photography
   - LinkedIn
   - GitHub
-- The centered card subtly enlarges.
+- The centered card subtly enlarges when entered and returns to normal size when clicked again.
 - Matrix animation keeps running; click does not freeze, reset, or resize the character field.
 
 Wheel / trackpad:
@@ -108,7 +111,8 @@ Photography page uses existing files copied from the old repo:
 
 - Do not reintroduce non-photography images unless the user asks.
 - Keep homepage email removed; current homepage links are About, Photography, LinkedIn, GitHub.
-- Do not make the click interaction toggle back out; user requested one-way first-click behavior.
+- Click toggles the foreground card only; it should not reset or resize the Matrix canvas.
+- Keep `/src/audio.js` loaded on every page so nav links and card/button-like controls share the same click sound.
 - Do not reintroduce the explosion/freeze effect for webcard v2 unless the user explicitly asks to restore it.
 - Avoid scaling the canvas DOM element. For Matrix wheel interaction, adjust `matrixScroll` and keep glyph wrapping intact.
 - If editing Matrix behavior, run `node --check src/main.js` afterward.
