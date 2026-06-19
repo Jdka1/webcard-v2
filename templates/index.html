@@ -9,6 +9,32 @@
     <link rel="stylesheet" href="/src/styles.css" />
   </head>
   <body>
+    <svg class="glass-filter" aria-hidden="true" focusable="false">
+      <filter
+        id="glass-distortion"
+        x="-20%"
+        y="-20%"
+        width="140%"
+        height="140%"
+        color-interpolation-filters="sRGB"
+      >
+        <feTurbulence
+          type="fractalNoise"
+          baseFrequency="0.012 0.018"
+          numOctaves="2"
+          seed="7"
+          result="noise"
+        />
+        <feGaussianBlur in="noise" stdDeviation="2" result="soft-noise" />
+        <feDisplacementMap
+          in="SourceGraphic"
+          in2="soft-noise"
+          scale="36"
+          xChannelSelector="R"
+          yChannelSelector="G"
+        />
+      </filter>
+    </svg>
     <main class="hero" aria-labelledby="site-title">
       <img class="hero-photo" src="{{heroImage}}" alt="{{heroAlt}}" />
       <button class="photo-toggle" type="button" aria-label="Show next background photo">
@@ -16,6 +42,7 @@
       </button>
 
       <section class="intro" aria-label="{{aboutAriaLabel}}">
+        <span class="glass-distortion" aria-hidden="true"></span>
         <div class="intro-heading">
           <h1 id="site-title">{{name}}</h1>
           <nav class="links" aria-label="Personal links">

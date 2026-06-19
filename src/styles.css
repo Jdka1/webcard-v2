@@ -29,6 +29,13 @@ a {
   text-decoration: none;
 }
 
+.glass-filter {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
 .hero {
   position: relative;
   display: grid;
@@ -102,10 +109,9 @@ a {
   --glass-dy: 0px;
   --glass-angle: 135deg;
   --glass-bg: url("/public/photography/4V7A5833-Enhanced-NR-Edit.jpg");
-  --glass-shift-x: 0px;
-  --glass-shift-y: 0px;
   --glass-lens-x: 0px;
   --glass-lens-y: 0px;
+  --glass-lens-size: 176px;
   position: relative;
   width: min(520px, calc(100% - 32px));
   min-width: 0;
@@ -146,16 +152,14 @@ a {
 }
 
 .intro::before {
-  inset: -8px;
-  z-index: -1;
+  inset: 0;
+  z-index: 1;
   border-radius: inherit;
   background:
-    radial-gradient(150px 120px at var(--glass-x) var(--glass-y), rgba(255, 255, 255, 0.18), transparent 68%),
-    linear-gradient(115deg, rgba(255, 255, 255, 0.22), transparent 24% 72%, rgba(255, 255, 255, 0.08)),
-    var(--glass-bg) center / cover fixed no-repeat;
-  opacity: 0.28;
-  filter: blur(1.2px) saturate(1.34) contrast(1.12) brightness(1.05);
-  transform: scale(1.025) translate(var(--glass-shift-x), var(--glass-shift-y));
+    radial-gradient(var(--glass-lens-size) var(--glass-lens-size) at var(--glass-x) var(--glass-y), rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.08) 42%, transparent 74%),
+    linear-gradient(115deg, rgba(255, 255, 255, 0.22), transparent 24% 72%, rgba(255, 255, 255, 0.08));
+  opacity: 0.52;
+  mix-blend-mode: screen;
   transition:
     opacity 220ms ease,
     transform 120ms ease-out;
@@ -176,9 +180,26 @@ a {
     transform 120ms ease-out;
 }
 
+.glass-distortion {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  background: var(--glass-bg) 51% 48% / cover fixed no-repeat;
+  filter: url("#glass-distortion") saturate(1.34) contrast(1.14) brightness(1.03);
+  opacity: 0.78;
+  pointer-events: none;
+  transform: translate(var(--glass-lens-x), var(--glass-lens-y));
+  transition:
+    opacity 180ms ease,
+    transform 80ms linear;
+  -webkit-mask-image: radial-gradient(var(--glass-lens-size) var(--glass-lens-size) at var(--glass-x) var(--glass-y), #000 0 34%, rgba(0, 0, 0, 0.78) 45%, transparent 73%);
+  mask-image: radial-gradient(var(--glass-lens-size) var(--glass-lens-size) at var(--glass-x) var(--glass-y), #000 0 34%, rgba(0, 0, 0, 0.78) 45%, transparent 73%);
+}
+
 .intro > * {
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 
 .intro:hover,
@@ -196,12 +217,17 @@ a {
 
 .intro:hover::before,
 .intro:focus-within::before {
-  opacity: 0.36;
+  opacity: 0.68;
 }
 
 .intro:hover::after,
 .intro:focus-within::after {
   opacity: 0.78;
+}
+
+.intro:hover .glass-distortion,
+.intro:focus-within .glass-distortion {
+  opacity: 0.92;
 }
 
 h1,
@@ -269,6 +295,10 @@ h1 {
 @media (max-width: 680px) {
   .hero-photo {
     object-position: 49% 50%;
+  }
+
+  .glass-distortion {
+    background-position: 49% 50%;
   }
 
   .photo-toggle {

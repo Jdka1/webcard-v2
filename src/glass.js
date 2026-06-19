@@ -21,10 +21,8 @@ if (glassCard) {
     glassCard.style.setProperty("--glass-dx", `${dx}px`);
     glassCard.style.setProperty("--glass-dy", `${dy}px`);
     glassCard.style.setProperty("--glass-angle", `${angle}deg`);
-    glassCard.style.setProperty("--glass-shift-x", `${dx * -0.06}px`);
-    glassCard.style.setProperty("--glass-shift-y", `${dy * -0.06}px`);
-    glassCard.style.setProperty("--glass-lens-x", `${dx * -0.9}px`);
-    glassCard.style.setProperty("--glass-lens-y", `${dy * -0.9}px`);
+    glassCard.style.setProperty("--glass-lens-x", `${dx * -0.72}px`);
+    glassCard.style.setProperty("--glass-lens-y", `${dy * -0.72}px`);
   };
 
   setGlassBackground();
