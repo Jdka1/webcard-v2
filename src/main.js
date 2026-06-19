@@ -7,7 +7,7 @@ if (!canvas) {
 const c = canvas.getContext("2d");
 const homeCard = document.querySelector(".home-card");
 
-const fontHeight = 22;
+const baseFontHeight = 22;
 const fontFamily = '"Syne Mono", Meiryo, monospace';
 const numbers = "0123456789";
 const operators = "#+-\\/|=";
@@ -19,20 +19,19 @@ const spawnInterval = 720;
 const density = 0.48;
 const glitchInterval = 520;
 const glitchAmount = 0.012;
-const moveScale = 0.0048;
-const speedBase = 0.62;
+const moveScale = 0.0064;
+const speedBase = 0.72;
 const speedDeviation = 0.2;
 const streaks = 1.5;
 const brightRatio = 0.08;
-const minZoom = 0.025;
-const maxZoom = 72;
-const enteredZoom = 2.35;
-const revealZoom = 1.45;
+const enteredZoom = 1.22;
+const autoScrollSpeed = 0.018;
 
-let zoom = 1;
+let cardScale = 1;
 let dpr = 1;
 let w = 0;
 let h = 0;
+let fontHeight = baseFontHeight;
 let charHeight = 0;
 let colWidth = 0;
 let colsPerLine = 0;
@@ -40,23 +39,40 @@ let charsOnCol = 0;
 let prevTime = 0;
 let glitchCollect = 0;
 let spawnCollect = 0;
-let explosion = null;
-let visibleGlyphs = [];
+let hasEntered = false;
+let matrixScroll = 0;
 
 const trails = [];
 
 const randomGlyph = () => ({
   glyph: alphabet[Math.floor(Math.random() * alphabet.length)],
-  flipped: Math.random() < 0.5,
   bright: Math.random() < brightRatio,
 });
 
 const universe = Array.from({ length: 1200 }, randomGlyph);
 
-function setZoom(nextZoom) {
-  zoom = Math.max(minZoom, Math.min(maxZoom, nextZoom));
-  document.documentElement.style.setProperty("--scene-scale", zoom.toFixed(3));
-  document.body.classList.toggle("is-entered", zoom >= revealZoom);
+function setCardScale(nextScale) {
+  cardScale = Math.max(0.72, Math.min(1.45, nextScale));
+  document.documentElement.style.setProperty("--card-scale", cardScale.toFixed(3));
+  document.body.classList.toggle("is-entered", hasEntered);
+}
+
+function updateMatrixMetrics({ reset = false } = {}) {
+  fontHeight = baseFontHeight;
+  c.font = `${fontHeight}px ${fontFamily}`;
+  c.textBaseline = "top";
+
+  const charSize = c.measureText("ネ");
+  colWidth = Math.max(12, charSize.width * 1.42);
+  charHeight = fontHeight * 1.45;
+  charsOnCol = Math.max(1, Math.ceil(h / charHeight));
+  colsPerLine = Math.max(1, Math.ceil(w / colWidth));
+
+  if (reset) {
+    trails.length = 0;
+  }
+
+  spawnTrails();
 }
 
 function setCanvasExtents() {
@@ -68,16 +84,7 @@ function setCanvasExtents() {
   canvas.style.width = `${w}px`;
   canvas.style.height = `${h}px`;
   c.setTransform(dpr, 0, 0, dpr, 0, 0);
-  c.font = `${fontHeight}px ${fontFamily}`;
-  c.textBaseline = "top";
-
-  const charSize = c.measureText("ネ");
-  colWidth = Math.max(12, charSize.width * 1.42);
-  charHeight = fontHeight * 1.45;
-  charsOnCol = Math.max(1, Math.ceil(h / charHeight));
-  colsPerLine = Math.max(1, Math.ceil(w / colWidth));
-  trails.length = 0;
-  spawnTrails();
+  updateMatrixMetrics({ reset: true });
 }
 
 function makeTrail(col, maxSpeed = null, headAt = null) {
@@ -89,6 +96,7 @@ function makeTrail(col, maxSpeed = null, headAt = null) {
 
   return {
     col,
+    depth: 0.35 + Math.random() * 0.9,
     universeAt: Math.floor(Math.random() * universe.length),
     headAt: headAt ?? -Math.floor(Math.random() * 2 * charsOnCol),
     speed,
@@ -100,13 +108,6 @@ function clear() {
   c.setTransform(dpr, 0, 0, dpr, 0, 0);
   c.fillStyle = "#fbfaf7";
   c.fillRect(0, 0, w, h);
-}
-
-function useSceneTransform() {
-  c.setTransform(dpr, 0, 0, dpr, 0, 0);
-  c.translate(w / 2, h / 2);
-  c.scale(zoom, zoom);
-  c.translate(-w / 2, -h / 2);
 }
 
 const colors = {
@@ -126,31 +127,37 @@ const colors = {
   ],
 };
 
-function drawGlyph(item, x, y, color, record = true) {
-  c.fillStyle = color;
-
-  if (record) {
-    visibleGlyphs.push({
-      glyph: item.glyph,
-      flipped: item.flipped,
-      x,
-      y,
-      color,
-    });
-  }
-
-  if (item.flipped) {
-    c.save();
-    c.translate(x + colWidth, y);
-    c.scale(-1, 1);
-    c.fillText(item.glyph, 0, 0);
-    c.restore();
-  } else {
-    c.fillText(item.glyph, x, y);
-  }
+function parallaxPoint(x, y, depth = 1) {
+  const strength = Math.max(-0.035, Math.min(0.035, matrixScroll * 0.000018 * depth));
+  return {
+    x: x + (x - w / 2) * strength,
+    y: y + (y - h / 2) * strength,
+  };
 }
 
-function drawTrail(trail, record = true) {
+function wrapY(y) {
+  const gutter = charHeight * 4;
+  const range = h + gutter * 2;
+  return ((((y + gutter) % range) + range) % range) - gutter;
+}
+
+function drawGlyph(item, x, y, color, depth = 1) {
+  const scrolledY = wrapY(y + matrixScroll * (0.45 + depth * 0.65));
+  const point = parallaxPoint(x, scrolledY, depth);
+
+  c.fillStyle = color;
+  c.shadowColor = "rgba(0, 85, 32, 0.16)";
+  c.shadowBlur = 2 + depth * 5;
+  c.shadowOffsetX = depth * 1.3;
+  c.shadowOffsetY = depth * 2.2;
+
+  c.fillText(item.glyph, point.x, point.y);
+  c.shadowBlur = 0;
+  c.shadowOffsetX = 0;
+  c.shadowOffsetY = 0;
+}
+
+function drawTrail(trail) {
   const head = Math.round(trail.headAt);
   if (head < 0) return;
 
@@ -171,33 +178,7 @@ function drawTrail(trail, record = true) {
       color = colors.tail[trail.length - i - 1];
     }
 
-    drawGlyph(item, x, y, color, record);
-  }
-}
-
-function drawExplosion(time) {
-  const elapsed = time - explosion.startedAt;
-  const progress = Math.min(1, elapsed / explosion.duration);
-  const eased = 1 - Math.pow(1 - progress, 3);
-
-  explosion.particles.forEach((particle) => {
-    const item = {
-      glyph: particle.glyph,
-      flipped: particle.flipped,
-    };
-    drawGlyph(
-      item,
-      particle.x + particle.dx * eased,
-      particle.y + particle.dy * eased,
-      particle.color,
-      false,
-    );
-  });
-
-  if (progress >= 1) {
-    const nextZoom = explosion.nextZoom;
-    explosion = null;
-    setZoom(nextZoom);
+    drawGlyph(item, x, y, color, trail.depth);
   }
 }
 
@@ -262,87 +243,41 @@ function tick(time) {
   const elapsed = time - prevTime;
   prevTime = time;
 
-  if (!explosion) {
-    moveTrails(elapsed * moveScale);
+  matrixScroll += elapsed * autoScrollSpeed;
+  moveTrails(elapsed * moveScale);
 
-    spawnCollect += elapsed;
-    while (spawnCollect > spawnInterval) {
-      spawnCollect -= spawnInterval;
-      spawnTrails();
-    }
+  spawnCollect += elapsed;
+  while (spawnCollect > spawnInterval) {
+    spawnCollect -= spawnInterval;
+    spawnTrails();
+  }
 
-    glitchCollect += elapsed;
-    while (glitchCollect > glitchInterval) {
-      glitchCollect -= glitchInterval;
-      glitchUniverse(Math.floor(universe.length * glitchAmount));
-    }
+  glitchCollect += elapsed;
+  while (glitchCollect > glitchInterval) {
+    glitchCollect -= glitchInterval;
+    glitchUniverse(Math.floor(universe.length * glitchAmount));
   }
 
   clear();
-  useSceneTransform();
+  c.setTransform(dpr, 0, 0, dpr, 0, 0);
   c.font = `${fontHeight}px ${fontFamily}`;
   c.textBaseline = "top";
-  visibleGlyphs = [];
-
-  if (explosion) {
-    drawExplosion(time);
-  } else {
-    trails.forEach((trail) => drawTrail(trail));
-  }
+  trails.forEach((trail) => drawTrail(trail));
 
   requestAnimationFrame(tick);
 }
 
-function makeExplosionParticles() {
-  const source = visibleGlyphs.length > 0
-    ? visibleGlyphs
-    : trails.flatMap((trail) => {
-      const head = Math.round(trail.headAt);
-      return Array.from({ length: Math.min(trail.length, 12) }, (_, index) => {
-        const item = universe[(trail.universeAt + head - index) % universe.length];
-        return {
-          glyph: item.glyph,
-          flipped: item.flipped,
-          x: trail.col * colWidth,
-          y: (head - index) * charHeight,
-          color: item.bright ? colors.bright : colors.regular,
-        };
-      });
-    });
-
-  const limited = source
-    .filter((glyph) => glyph.y >= -charHeight && glyph.y <= h + charHeight)
-    .slice(0, 950);
-
-  return limited.map((glyph) => {
-    const dx = glyph.x - w / 2;
-    const dy = glyph.y - h / 2;
-    const distance = Math.max(Math.hypot(dx, dy), 1);
-    const radius = 18 + Math.random() * 64;
-    return {
-      ...glyph,
-      dx: (dx / distance) * radius + (Math.random() - 0.5) * 18,
-      dy: (dy / distance) * radius + (Math.random() - 0.5) * 18,
-    };
-  });
-}
-
 function toggleEntered() {
-  if (explosion) return;
+  if (hasEntered) return;
 
-  explosion = {
-    duration: 720,
-    particles: makeExplosionParticles(),
-    startedAt: performance.now(),
-    nextZoom: document.body.classList.contains("is-entered") ? 1 : enteredZoom,
-  };
+  hasEntered = true;
+  setCardScale(enteredZoom);
 }
 
 window.addEventListener("resize", setCanvasExtents);
 window.addEventListener("wheel", (event) => {
   event.preventDefault();
-  const factor = Math.exp(-event.deltaY * 0.0018);
-  setZoom(zoom * factor);
+  matrixScroll += event.deltaY * 0.9;
 }, { passive: false });
 
 homeCard?.addEventListener("click", (event) => {
@@ -357,7 +292,7 @@ homeCard?.addEventListener("keydown", (event) => {
   }
 });
 
-setZoom(1);
+setCardScale(1);
 setCanvasExtents();
 requestAnimationFrame((time) => {
   prevTime = time;
